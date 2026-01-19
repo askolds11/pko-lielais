@@ -1,0 +1,40 @@
+services:
+  # Main Street Routing Optimizer application
+  sniega-masinas:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: sniega-masinas-optimizer
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx16g -Xms512m
+      - SPRING_PROFILES_ACTIVE=docker
+      # Override these to use custom files
+      # Place your .osm.pbf file in ./cache/ and update this path
+      - OSM_FILE_PATH=/app/cache/latvia-260114.osm.pbf
+      - GRAPH_CACHE_PATH=/app/cache/graph_cache.json
+    volumes:
+      # Mount the OSM file explicitly
+      - ./latvia-260114.osm.pbf:/app/cache/latvia-260114.osm.pbf:ro
+      # Mount solver configuration
+      - ./solverConfig.xml:/app/config/solverConfig.xml:ro
+      # Mount graph cache for persistence (optional - speeds up restart)
+      - ./cache/graph_cache.json:/app/cache/graph_cache.json
+      # Mount benchmark data and reports
+      - ./benchmark-data:/app/benchmark-data
+      - ./benchmark-report:/app/benchmark-report
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    networks:
+      - routing-network
+
+networks:
+  routing-network:
+    driver: bridge
+

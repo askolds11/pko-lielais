@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+
+    <!-- Domain model classes -->
+    <solutionClass>domain.StreetRoutingSolution</solutionClass>
+    <entityClass>domain.Vehicle</entityClass>
+    <entityClass>domain.StreetSegment</entityClass>
+
+    <!-- Score calculation -->
+    <scoreDirectorFactory>
+        <constraintProviderClass>solver.StreetRoutingConstraintProvider</constraintProviderClass>
+    </scoreDirectorFactory>
+
+    <!-- Termination configuration -->
+    <termination>
+        <spentLimit>PT5M</spentLimit>
+        <unimprovedSpentLimit>PT1M</unimprovedSpentLimit>
+    </termination>
+
+    <!-- Construction Heuristic -->
+    <constructionHeuristic>
+        <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+    </constructionHeuristic>
+
+    <!-- Local Search with aggressive diversification -->
+    <localSearch>
+        <termination>
+            <unimprovedSecondsSpentLimit>10</unimprovedSecondsSpentLimit>
+        </termination>
+        <unionMoveSelector>
+            <listChangeMoveSelector>
+                <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+            </listChangeMoveSelector>
+            <listSwapMoveSelector>
+                <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+            </listSwapMoveSelector>
+            <subListChangeMoveSelector>
+                <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+            </subListChangeMoveSelector>
+            <subListSwapMoveSelector>
+                <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+            </subListSwapMoveSelector>
+            <kOptListMoveSelector>
+                <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+            </kOptListMoveSelector>
+        </unionMoveSelector>
+        <acceptor>
+            <lateAcceptanceSize>200</lateAcceptanceSize>
+            <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>8</acceptedCountLimit>
+        </forager>
+    </localSearch>
+
+    <localSearch>
+        <termination>
+            <diminishedReturns />
+        </termination>
+        <unionMoveSelector>
+            <listChangeMoveSelector>
+                <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+            </listChangeMoveSelector>
+            <listSwapMoveSelector>
+                <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+            </listSwapMoveSelector>
+            <subListChangeMoveSelector>
+                <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                <minimumSubListSize>2</minimumSubListSize>
+                <maximumSubListSize>4</maximumSubListSize>
+            </subListChangeMoveSelector>
+            <subListSwapMoveSelector>
+                <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                <minimumSubListSize>2</minimumSubListSize>
+                <maximumSubListSize>4</maximumSubListSize>
+            </subListSwapMoveSelector>
+            <kOptListMoveSelector>
+                <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                <minimumK>2</minimumK>
+                <maximumK>4</maximumK>
+            </kOptListMoveSelector>
+        </unionMoveSelector>
+        <acceptor>
+            <lateAcceptanceSize>200</lateAcceptanceSize>
+            <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>
+        </acceptor>
+        <forager>
+            <acceptedCountLimit>8</acceptedCountLimit>
+        </forager>
+    </localSearch>
+
+</solver>

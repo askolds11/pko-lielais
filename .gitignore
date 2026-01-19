@@ -47,3 +47,6 @@ bin/
 ### Application Cache ###
 cache/
 target/
+
+### Docker ###
+docker/latvia-260114.osm.pbf
