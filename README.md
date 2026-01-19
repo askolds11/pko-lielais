@@ -1,0 +1,2 @@
+# Sniega mašīnu optimizators 
+Askolds

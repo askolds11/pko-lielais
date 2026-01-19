@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Routing Optimizer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+
+        #sidebar {
+            width: 420px;
+            background: #f5f5f5;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #sidebar h1 {
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .controls {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background: white;
+        }
+
+        .controls label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .controls input, .controls select, .controls button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .controls input[type="file"] {
+            padding: 6px;
+        }
+
+        .controls button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .controls button:hover {
+            background: #2980b9;
+        }
+
+        .controls button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .controls button.stop {
+            background: #e74c3c;
+        }
+
+        .controls button.stop:hover {
+            background: #c0392b;
+        }
+
+        .controls button.secondary {
+            background: #7f8c8d;
+        }
+
+        .controls button.secondary:hover {
+            background: #6c7a7d;
+        }
+
+        .controls button.osm {
+            background: #27ae60;
+        }
+
+        .controls button.osm:hover {
+            background: #219a52;
+        }
+
+        .section-title {
+            font-size: 0.85em;
+            color: #666;
+            margin: 10px 0 8px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .row > * {
+            flex: 1;
+        }
+
+        .row input {
+            width: 100%;
+        }
+
+        #status {
+            padding: 10px 15px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #status .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-badge.solving {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-badge.solved {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-badge.idle {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #score-panel {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #score-panel h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .score-display {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .score-item {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .score-item.hard {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+        }
+
+        .score-item.medium {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+        }
+
+        .score-item.soft {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+        }
+
+        .score-item .label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .score-item .value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        #breakdown-panel {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        #breakdown-panel h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .vehicle-breakdown {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .vehicle-header {
+            padding: 10px;
+            background: #34495e;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .vehicle-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .constraint-list {
+            padding: 10px;
+            background: white;
+        }
+
+        .constraint-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+        }
+
+        .constraint-item:last-child {
+            border-bottom: none;
+        }
+
+        .constraint-name {
+            color: #333;
+        }
+
+        .constraint-score {
+            font-weight: 500;
+        }
+
+        .constraint-score.hard { color: #e74c3c; }
+        .constraint-score.medium { color: #f39c12; }
+        .constraint-score.soft { color: #3498db; }
+
+        #map-container {
+            flex: 1;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .legend h4 {
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 0.85em;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .segment-popup {
+            min-width: 200px;
+        }
+
+        .segment-popup h4 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .segment-popup .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 0.9em;
+        }
+
+        .segment-popup .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+
+        .segment-popup .badge.mandatory {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .segment-popup .badge.optional {
+            background: #27ae60;
+            color: white;
+        }
+
+        .segment-popup .badge.assigned {
+            background: #3498db;
+            color: white;
+        }
+
+        .segment-popup .badge.unassigned {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .order-marker-container {
+            background: transparent !important;
+        }
+
+        .order-marker {
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .unvisited-marker-container {
+            background: transparent !important;
+        }
+
+        .unvisited-marker {
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .osm-status {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+
+        .osm-status.available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .osm-status.unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .help-text {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+
+        .collapsible-header:hover {
+            background: #f9f9f9;
+            margin: 0 -15px;
+            padding: 8px 15px;
+        }
+
+        .collapsible-header .section-title {
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .collapsible-header .toggle-icon {
+            font-size: 0.8em;
+            color: #666;
+            transition: transform 0.2s;
+        }
+
+        .collapsible-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0 !important;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* Fullscreen link */
+        .fullscreen-link {
+            font-size: 0.8em;
+            color: #3498db;
+            text-decoration: none;
+            float: right;
+        }
+
+        .fullscreen-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Vehicle score summary in breakdown */
+        .vehicle-scores {
+            display: flex;
+            gap: 8px;
+            padding: 8px 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .vehicle-score-item {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75em;
+        }
+
+        .vehicle-score-item .score-label {
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .vehicle-score-item .score-value {
+            font-weight: bold;
+        }
+
+        .vehicle-score-item.hard .score-value { color: #e74c3c; }
+        .vehicle-score-item.medium .score-value { color: #f39c12; }
+        .vehicle-score-item.soft .score-value { color: #3498db; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h1>🚗 Street Routing Optimizer</h1>
+
+        <div class="controls">
+            <!-- OSM Generation (bundled OSM file) -->
+            <div id="osmStatus" class="osm-status">Checking OSM support...</div>
+
+            <!-- Collapsible: Generate from Real Map Data -->
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <div class="section-title">Generate from Real Map Data</div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="generateSection">
+                <p class="help-text">Uses the bundled OpenStreetMap data (Latvia)</p>
+
+                <div class="row">
+                    <div>
+                        <label for="osmMandatory">Mandatory</label>
+                        <input type="number" id="osmMandatory" value="20" min="1" max="1000">
+                    </div>
+                    <div>
+                        <label for="osmOptional">Optional</label>
+                        <input type="number" id="osmOptional" value="10" min="0" max="1000">
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="osmVehicles">Vehicles</label>
+                        <input type="number" id="osmVehicles" value="2" min="1" max="20">
+                    </div>
+                </div>
+                <div class="row">
+                    <div>
+                        <label for="osmMinRange">Min Range (m)</label>
+                        <input type="number" id="osmMinRange" value="0" min="0" placeholder="0 = unlimited">
+                    </div>
+                    <div>
+                        <label for="osmMaxRange">Max Range (m)</label>
+                        <input type="number" id="osmMaxRange" value="0" min="0" placeholder="0 = unlimited">
+                    </div>
+                </div>
+                <p class="help-text" style="font-size: 0.8em; color: #666; margin: 5px 0;">
+                    Set min/max range for random vehicle ranges. 0 = unlimited.
+                </p>
+                <button id="osmGenerateBtn" class="osm" disabled>Generate & Solve</button>
+            </div>
+
+            <hr style="margin: 15px 0; border-color: #ddd;">
+
+            <!-- Collapsible: Manage Solutions -->
+            <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                <div class="section-title">Manage Solutions</div>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="collapsible-content" id="manageSection">
+                <label for="jobId">Job ID</label>
+                <input type="text" id="jobId" placeholder="Enter job ID to load">
+                <div class="row">
+                    <button id="loadBtn" class="secondary">Load</button>
+                    <button id="stopBtn" class="stop" style="display: none;">Stop</button>
+                </div>
+                <button id="downloadBtn" class="secondary" style="margin-top: 5px;" disabled>📥 Download Problem JSON</button>
+            </div>
+        </div>
+
+        <div id="status">
+            Status: <span class="status-badge idle">Idle</span>
+        </div>
+
+        <div id="score-panel">
+            <h3>Score</h3>
+            <div class="score-display">
+                <div class="score-item hard">
+                    <div class="label">Hard</div>
+                    <div class="value" id="hardScore">-</div>
+                </div>
+                <div class="score-item medium">
+                    <div class="label">Medium</div>
+                    <div class="value" id="mediumScore">-</div>
+                </div>
+                <div class="score-item soft">
+                    <div class="label">Soft</div>
+                    <div class="value" id="softScore">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="breakdown-panel">
+            <h3>Score Breakdown by Vehicle <a href="#" class="fullscreen-link" id="fullscreenBreakdownLink" onclick="openFullscreenBreakdown(); return false;">⛶ Fullscreen</a></h3>
+            <div id="vehicleBreakdowns">
+                <p style="color: #666; font-style: italic;">Generate or load a solution to see breakdown</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="map-container">
+        <div id="map"></div>
+        <div class="legend" id="legend" style="display: none;">
+            <h4>Vehicles</h4>
+            <div id="legendItems"></div>
+            <hr style="margin: 8px 0;">
+            <div class="legend-item">
+                <div class="legend-line" style="background: #999; opacity: 0.5;"></div>
+                <span>Unassigned</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background: #333; height: 2px; border: 1px dashed #333;"></div>
+                <span>Optional</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>

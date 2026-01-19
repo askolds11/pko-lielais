@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Breakdown - Street Routing Optimizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+        }
+
+        .header a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        .header a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .job-info {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .job-info .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .job-info .value {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .score-summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score-card {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .score-card.hard {
+            background: #ffebee;
+            border: 2px solid #ef5350;
+        }
+
+        .score-card.medium {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        .score-card.soft {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+
+        .score-card .label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .score-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .score-card.hard .value { color: #e74c3c; }
+        .score-card.medium .value { color: #f39c12; }
+        .score-card.soft .value { color: #3498db; }
+
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .vehicle-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .vehicle-header {
+            padding: 15px 20px;
+            background: #34495e;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vehicle-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .vehicle-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .vehicle-scores {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .vehicle-score-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .vehicle-score-item .score-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .vehicle-score-item .score-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .vehicle-score-item.hard .score-value { color: #e74c3c; }
+        .vehicle-score-item.medium .score-value { color: #f39c12; }
+        .vehicle-score-item.soft .score-value { color: #3498db; }
+
+        .constraint-list {
+            padding: 15px 20px;
+        }
+
+        .constraint-section {
+            margin-bottom: 15px;
+        }
+
+        .constraint-section-title {
+            font-size: 0.85em;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .constraint-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+
+        .constraint-item:last-child {
+            border-bottom: none;
+        }
+
+        .constraint-name {
+            color: #333;
+        }
+
+        .constraint-score {
+            font-weight: 500;
+        }
+
+        .constraint-score.hard { color: #e74c3c; }
+        .constraint-score.medium { color: #f39c12; }
+        .constraint-score.soft { color: #3498db; }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .status-badge.solving {
+            background: #f39c12;
+            color: white;
+        }
+
+        .status-badge.solved {
+            background: #27ae60;
+            color: white;
+        }
+
+        .status-badge.idle {
+            background: #95a5a6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚗 Score Breakdown</h1>
+        <div>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+            <a href="/">← Back to Map</a>
+        </div>
+    </div>
+
+    <div class="job-info">
+        <span class="label">Job ID:</span>
+        <span class="value" id="jobIdDisplay">-</span>
+        <span class="status-badge idle" id="statusBadge">Idle</span>
+    </div>
+
+    <div class="score-summary">
+        <div class="score-card hard">
+            <div class="label">Hard Score</div>
+            <div class="value" id="hardScore">-</div>
+        </div>
+        <div class="score-card medium">
+            <div class="label">Medium Score</div>
+            <div class="value" id="mediumScore">-</div>
+        </div>
+        <div class="score-card soft">
+            <div class="label">Soft Score</div>
+            <div class="value" id="softScore">-</div>
+        </div>
+    </div>
+
+    <div class="vehicles-grid" id="vehiclesContainer">
+        <div class="no-data">No data available. Please provide a job ID in the URL (e.g., ?jobId=xxx)</div>
+    </div>
+
+    <script>
+        const VEHICLE_COLORS = [
+            '#e41a1c', '#377eb8', '#4daf4a', '#984ea3',
+            '#ff7f00', '#ffff33', '#a65628', '#f781bf',
+            '#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3'
+        ];
+
+        let currentJobId = null;
+        let pollingInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get job ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            currentJobId = urlParams.get('jobId');
+
+            if (currentJobId) {
+                document.getElementById('jobIdDisplay').textContent = currentJobId;
+                fetchData();
+                startPolling();
+            }
+        });
+
+        function startPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(fetchData, 2000);
+        }
+
+        function refreshData() {
+            fetchData();
+        }
+
+        async function fetchData() {
+            if (!currentJobId) return;
+
+            try {
+                // Fetch solution for status
+                const solutionRes = await fetch(`/routing/${currentJobId}`);
+                if (!solutionRes.ok) throw new Error('Failed to fetch solution');
+                const solution = await solutionRes.json();
+
+                // Update status
+                updateStatus(solution.solverStatus);
+
+                // Update scores
+                updateScores(solution.score);
+
+                // Fetch breakdown (same endpoint as main page)
+                const breakdownRes = await fetch(`/routing/breakdown/${currentJobId}`);
+                if (breakdownRes.ok) {
+                    const breakdown = await breakdownRes.json();
+                    updateVehicleBreakdown(breakdown);
+                }
+
+                // Stop polling if solved
+                if (solution.solverStatus === 'NOT_SOLVING') {
+                    clearInterval(pollingInterval);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.className = 'status-badge';
+
+            if (status === 'SOLVING_ACTIVE') {
+                badge.classList.add('solving');
+                badge.textContent = 'Solving';
+            } else if (status === 'NOT_SOLVING') {
+                badge.classList.add('solved');
+                badge.textContent = 'Solved';
+            } else {
+                badge.classList.add('idle');
+                badge.textContent = status || 'Idle';
+            }
+        }
+
+        function updateScores(score) {
+            if (!score) return;
+
+            const scoreStr = score.toString ? score.toString() : String(score);
+
+            // Try format with parentheses first: (0hard/0medium/-1234soft)
+            let match = scoreStr.match(/\((-?\d+)hard\/(-?\d+)medium\/(-?\d+)soft\)/);
+
+            // Try format without parentheses: 0hard/0medium/-1234soft
+            if (!match) {
+                match = scoreStr.match(/(-?\d+)hard\/(-?\d+)medium\/(-?\d+)soft/);
+            }
+
+            if (match) {
+                document.getElementById('hardScore').textContent = match[1];
+                document.getElementById('mediumScore').textContent = match[2];
+                document.getElementById('softScore').textContent = match[3];
+            } else {
+                console.warn('Could not parse score:', scoreStr);
+            }
+        }
+
+        function updateVehicleBreakdown(breakdown) {
+            const container = document.getElementById('vehiclesContainer');
+
+            if (!breakdown || !breakdown.vehicleBreakdowns) {
+                container.innerHTML = '<div class="no-data">No breakdown data available</div>';
+                return;
+            }
+
+            // Render vehicles
+            let html = breakdown.vehicleBreakdowns.map((vehicle, idx) => {
+                const color = VEHICLE_COLORS[idx % VEHICLE_COLORS.length];
+                const rangeDisplay = vehicle.maxRange < 1e15
+                    ? `Range: ${Math.round(vehicle.maxRange).toLocaleString()}m`
+                    : 'Range: Unlimited';
+
+                return `
+                    <div class="vehicle-card">
+                        <div class="vehicle-header">
+                            <div class="vehicle-color" style="background: ${color};"></div>
+                            <span class="vehicle-name">${vehicle.vehicleId}</span>
+                            <span style="margin-left: auto; font-size: 0.85em;">${vehicle.segmentCount} segments · ${Math.round(vehicle.totalDistance).toLocaleString()}m</span>
+                        </div>
+                        <div style="padding: 8px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-size: 0.85em; color: #666;">
+                            ${rangeDisplay}
+                        </div>
+                        <div class="vehicle-scores">
+                            <div class="vehicle-score-item hard">
+                                <div class="score-label">Hard</div>
+                                <div class="score-value">${vehicle.hardScore}</div>
+                            </div>
+                            <div class="vehicle-score-item medium">
+                                <div class="score-label">Medium</div>
+                                <div class="score-value">${vehicle.mediumScore}</div>
+                            </div>
+                            <div class="vehicle-score-item soft">
+                                <div class="score-label">Soft</div>
+                                <div class="score-value">${vehicle.softScore}</div>
+                            </div>
+                        </div>
+                        <div class="constraint-list">
+                            ${renderConstraintSection('Vehicle Constraints', vehicle.vehicleConstraints)}
+                            ${renderConstraintSection('Segment Constraints', vehicle.segmentConstraints)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render unassigned segments
+            if (breakdown.unassignedSegmentConstraints && breakdown.unassignedSegmentConstraints.length > 0) {
+                html += `
+                    <div class="vehicle-card">
+                        <div class="vehicle-header" style="background: #e74c3c;">
+                            <span>⚠️ Unassigned Segments</span>
+                        </div>
+                        <div class="constraint-list">
+                            ${breakdown.unassignedSegmentConstraints.map(c => `
+                                <div class="constraint-item">
+                                    <span class="constraint-name">
+                                        ${c.name}
+                                        ${c.segmentName ? `<br><small style="color:#888">${c.segmentName}</small>` : ''}
+                                    </span>
+                                    <span class="constraint-score ${c.scoreType}">${c.score}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderConstraintSection(title, constraints) {
+            if (!constraints || constraints.length === 0) {
+                return '';
+            }
+
+            const items = constraints.map(c => `
+                <div class="constraint-item">
+                    <span class="constraint-name">
+                        ${c.name}
+                        ${c.segmentName ? `<br><small style="color:#888">${c.segmentName}</small>` : ''}
+                    </span>
+                    <span class="constraint-score ${c.scoreType}">${c.score}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="constraint-section">
+                    <div class="constraint-section-title">${title}</div>
+                    ${items}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

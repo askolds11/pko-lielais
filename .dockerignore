@@ -1,0 +1,42 @@
+# Build artifacts
+build/
+target/
+.gradle/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Local config
+*.local
+.env.local
+
+# Test data and reports
+benchmark-report/
+benchmark-data/
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*~

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plannerBenchmark xmlns="https://timefold.ai/xsd/benchmark" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://timefold.ai/xsd/benchmark https://timefold.ai/xsd/benchmark/benchmark.xsd">
+
+    <benchmarkDirectory>target/benchmark-report</benchmarkDirectory>
+
+    <!-- Parallel benchmark execution (optional - use 1 for single-threaded) -->
+    <parallelBenchmarkCount>16</parallelBenchmarkCount>
+
+    <!-- Inherited solver configuration for all benchmarks -->
+    <inheritedSolverBenchmark>
+        <solver>
+            <environmentMode>PHASE_ASSERT</environmentMode>
+
+            <!-- Domain model classes -->
+            <solutionClass>domain.StreetRoutingSolution</solutionClass>
+            <entityClass>domain.Vehicle</entityClass>
+            <entityClass>domain.StreetSegment</entityClass>
+
+            <!-- Score calculation -->
+            <scoreDirectorFactory>
+                <constraintProviderClass>solver.StreetRoutingConstraintProvider</constraintProviderClass>
+            </scoreDirectorFactory>
+
+
+            <!-- Termination for each problem -->
+            <termination>
+                <diminishedReturns />
+            </termination>
+        </solver>
+
+        <!-- Problem statistics to collect -->
+        <problemBenchmarks>
+            <solutionFileIOClass>benchmark.StreetRoutingSolutionFileIO</solutionFileIOClass>
+            <writeOutputSolutionEnabled>true</writeOutputSolutionEnabled>
+
+            <!-- All input problem files -->
+            <inputSolutionFile>benchmark-data/problem_small.json</inputSolutionFile>
+            <inputSolutionFile>benchmark-data/problem_medium.json</inputSolutionFile>
+            <inputSolutionFile>benchmark-data/problem_large.json</inputSolutionFile>
+
+            <!-- Problem-level statistics -->
+            <problemStatisticType>BEST_SCORE</problemStatisticType>
+            <problemStatisticType>STEP_SCORE</problemStatisticType>
+            <problemStatisticType>SCORE_CALCULATION_SPEED</problemStatisticType>
+            <problemStatisticType>MOVE_COUNT_PER_STEP</problemStatisticType>
+            <singleStatisticType>PICKED_MOVE_TYPE_BEST_SCORE_DIFF</singleStatisticType>
+            <singleStatisticType>CONSTRAINT_MATCH_TOTAL_BEST_SCORE</singleStatisticType>
+            <singleStatisticType>CONSTRAINT_MATCH_TOTAL_STEP_SCORE</singleStatisticType>
+        </problemBenchmarks>
+
+        <subSingleCount>3</subSingleCount>
+    </inheritedSolverBenchmark>
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_1</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>5.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--                    <subListChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>7.0</fixedProbabilityWeight>-->
+<!--                    </subListChangeMoveSelector>-->
+<!--                    <subListSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListSwapMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_2</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>5.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--                    <subListChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListChangeMoveSelector>-->
+<!--                    <subListSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>1.0</fixedProbabilityWeight>-->
+<!--                    </subListSwapMoveSelector>-->
+<!--                    <kOptListMoveSelector>-->
+<!--                        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>-->
+<!--                    </kOptListMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_3</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--                    <subListChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListChangeMoveSelector>-->
+<!--                    <subListSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListSwapMoveSelector>-->
+<!--                    <kOptListMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </kOptListMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_3_1</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>8.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>8.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--                    <subListChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListChangeMoveSelector>-->
+<!--                    <subListSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </subListSwapMoveSelector>-->
+<!--                    <kOptListMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </kOptListMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+    <solverBenchmark>
+        <name>LateAcceptance_SCHC_4</name>
+        <solver>
+            <localSearch>
+                <unionMoveSelector>
+                    <listChangeMoveSelector>
+                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+                    </listChangeMoveSelector>
+                    <listSwapMoveSelector>
+                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+                    </listSwapMoveSelector>
+                    <subListChangeMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </subListChangeMoveSelector>
+                    <subListSwapMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </subListSwapMoveSelector>
+                    <kOptListMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </kOptListMoveSelector>
+                </unionMoveSelector>
+                <acceptor>
+                    <lateAcceptanceSize>200</lateAcceptanceSize>
+                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>
+                </acceptor>
+                <forager>
+                    <acceptedCountLimit>8</acceptedCountLimit>
+                </forager>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+
+    <solverBenchmark>
+        <name>LateAcceptance_SCHC_4_Duo</name>
+        <solver>
+            <localSearch>
+                <termination>
+                    <unimprovedSecondsSpentLimit>10</unimprovedSecondsSpentLimit>
+                </termination>
+                <unionMoveSelector>
+                    <listChangeMoveSelector>
+                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+                    </listChangeMoveSelector>
+                    <listSwapMoveSelector>
+                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>
+                    </listSwapMoveSelector>
+                    <subListChangeMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </subListChangeMoveSelector>
+                    <subListSwapMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </subListSwapMoveSelector>
+                    <kOptListMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </kOptListMoveSelector>
+                </unionMoveSelector>
+                <acceptor>
+                    <lateAcceptanceSize>200</lateAcceptanceSize>
+                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>
+                </acceptor>
+                <forager>
+                    <acceptedCountLimit>8</acceptedCountLimit>
+                </forager>
+            </localSearch>
+            <localSearch>
+                <termination>
+                    <diminishedReturns />
+                </termination>
+                <unionMoveSelector>
+                    <listChangeMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </listChangeMoveSelector>
+                    <listSwapMoveSelector>
+                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>
+                    </listSwapMoveSelector>
+                    <subListChangeMoveSelector>
+                        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                        <minimumSubListSize>2</minimumSubListSize>
+                        <maximumSubListSize>4</maximumSubListSize>
+                    </subListChangeMoveSelector>
+                    <subListSwapMoveSelector>
+                        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                        <minimumSubListSize>2</minimumSubListSize>
+                        <maximumSubListSize>4</maximumSubListSize>
+                    </subListSwapMoveSelector>
+                    <kOptListMoveSelector>
+                        <fixedProbabilityWeight>4.0</fixedProbabilityWeight>
+                        <minimumK>2</minimumK>
+                        <maximumK>4</maximumK>
+                    </kOptListMoveSelector>
+                </unionMoveSelector>
+                <acceptor>
+                    <lateAcceptanceSize>200</lateAcceptanceSize>
+                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>
+                </acceptor>
+                <forager>
+                    <acceptedCountLimit>8</acceptedCountLimit>
+                </forager>
+            </localSearch>
+        </solver>
+    </solverBenchmark>
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_4_1</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>6.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>6.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--                    <subListChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </subListChangeMoveSelector>-->
+<!--                    <subListSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </subListSwapMoveSelector>-->
+<!--                    <kOptListMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </kOptListMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+<!--    <solverBenchmark>-->
+<!--        <name>LateAcceptance_SCHC_5</name>-->
+<!--        <solver>-->
+<!--            <localSearch>-->
+<!--                <unionMoveSelector>-->
+<!--                    <listChangeMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </listChangeMoveSelector>-->
+<!--                    <listSwapMoveSelector>-->
+<!--                        <fixedProbabilityWeight>3.0</fixedProbabilityWeight>-->
+<!--                    </listSwapMoveSelector>-->
+<!--&lt;!&ndash;                    <subListChangeMoveSelector>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </subListChangeMoveSelector>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <subListSwapMoveSelector>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </subListSwapMoveSelector>&ndash;&gt;-->
+<!--                    <kOptListMoveSelector>-->
+<!--                        <fixedProbabilityWeight>10.0</fixedProbabilityWeight>-->
+<!--                    </kOptListMoveSelector>-->
+<!--                </unionMoveSelector>-->
+<!--                <acceptor>-->
+<!--                    <lateAcceptanceSize>200</lateAcceptanceSize>-->
+<!--                    <stepCountingHillClimbingSize>200</stepCountingHillClimbingSize>-->
+<!--                </acceptor>-->
+<!--                <forager>-->
+<!--                    <acceptedCountLimit>8</acceptedCountLimit>-->
+<!--                </forager>-->
+<!--            </localSearch>-->
+<!--        </solver>-->
+<!--    </solverBenchmark>-->
+
+</plannerBenchmark>
